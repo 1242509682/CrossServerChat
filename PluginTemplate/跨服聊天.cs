@@ -18,7 +18,7 @@ public class 跨服聊天 : TerrariaPlugin
 
     public override string Name => "跨服聊天";
 
-    public override Version Version => new Version(1, 0, 0, 6);
+    public override Version Version => new Version(1, 0, 0, 7);
 
     public static ConfigFile LConfig { get; set; }
 
@@ -185,22 +185,38 @@ public class 跨服聊天 : TerrariaPlugin
 
     private void OnChat(ServerChatEventArgs args)
     {
-        if (args.Text.Substring(0, ((ConfigFile<TShockSettings>)(object)TShock.Config).Settings.CommandSpecifier.Length) == ((ConfigFile<TShockSettings>)(object)TShock.Config).Settings.CommandSpecifier || !LConfig.发送聊天 || args.Handled || args.Text == "" || args.Text.Contains("/") || args.Text.Contains("."))
+        int specifierLength = ((ConfigFile<TShockSettings>)(object)TShock.Config).Settings.CommandSpecifier.Length;
+
+        // 检查命令标识符是否存在，并且不在忽略条件中
+        if (specifierLength > 0 && args.Text.Length >= specifierLength &&
+            args.Text.Substring(0, specifierLength) == ((ConfigFile<TShockSettings>)(object)TShock.Config).Settings.CommandSpecifier)
+        {
+            // 如果满足特定命令前缀，则不执行后续跨服聊天发送逻辑
+            return;
+        }
+
+        // 检查是否允许发送聊天、是否已处理、文本是否为空、是否包含特殊字符等情况
+        if (!LConfig.发送聊天 || args.Handled || args.Text == "" || args.Text.Contains("/") || args.Text.Contains("."))
         {
             return;
         }
+
+        // 创建并格式化消息对象
         Message message = new Message(string.Format(LConfig.聊天格式, TShock.Players[args.Who].Group.Prefix, TShock.Players[args.Who].Name, TShock.Players[args.Who].Group.Suffix, args.Text), TShock.Players[args.Who].Group.R, TShock.Players[args.Who].Group.G, TShock.Players[args.Who].Group.B);
+
+        // 使用线程池异步发送跨服聊天消息
         ThreadPool.QueueUserWorkItem(delegate
         {
             byte[] bytes = Encoding.UTF8.GetBytes(message.ToString());
-            string str = Convert.ToBase64String(bytes);
-            string arg = HttpUtility.UrlEncode(str);
-            string[] rest地址 = LConfig.Rest地址;
-            foreach (string text in rest地址)
+            string encodedStr = Convert.ToBase64String(bytes);
+            string urlEncodedMessage = HttpUtility.UrlEncode(encodedStr);
+
+            foreach (string serverAddress in LConfig.Rest地址)
             {
-                if (!(text == ""))
+                if (!string.IsNullOrEmpty(serverAddress))
                 {
-                    string requestUriString = $"http://{text}/msc?message={arg}&token={LConfig.Token令牌}";
+                    string requestUriString = $"http://{serverAddress}/msc?message={urlEncodedMessage}&token={LConfig.Token令牌}";
+
                     try
                     {
                         HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUriString);

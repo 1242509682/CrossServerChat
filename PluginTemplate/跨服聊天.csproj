@@ -4,7 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <AssemblyName>$(MSBuildProjectName) v1.0.5</AssemblyName>
+        <AssemblyName>$(MSBuildProjectName) v1.0.7</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
