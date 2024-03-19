@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AssemblyName>$(MSBuildProjectName) v1.0.5</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="TShock" Version="5.*" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="HttpServer">
+        <HintPath>C:\Users\羽学\Desktop\测试服\bin\HttpServer.dll</HintPath>
+      </Reference>
+      <Reference Include="ModFramework">
+        <HintPath>C:\Users\羽学\Desktop\测试服\bin\ModFramework.dll</HintPath>
+      </Reference>
+      <Reference Include="OTAPI">
+        <HintPath>C:\Users\羽学\Desktop\测试服\bin\OTAPI.dll</HintPath>
+      </Reference>
+      <Reference Include="OTAPI.Runtime">
+        <HintPath>C:\Users\羽学\Desktop\测试服\bin\OTAPI.Runtime.dll</HintPath>
+      </Reference>
+      <Reference Include="TerrariaServer">
+        <HintPath>C:\Users\羽学\Desktop\测试服\bin\TerrariaServer.dll</HintPath>
+      </Reference>
+      <Reference Include="TShockAPI">
+        <HintPath>C:\Users\羽学\Desktop\测试服\ServerPlugins\TShockAPI.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
