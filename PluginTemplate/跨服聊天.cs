@@ -108,7 +108,15 @@ public class 跨服聊天 : TerrariaPlugin
 
     private void OnGreetPlayer(GreetPlayerEventArgs e)
     {
-        if (!LConfig.发送进入离开 || TShock.Players[e.Who] == null || !TShock.Players[e.Who].ConnectionAlive || TShock.Players[e.Who].Name == null || TShock.Players[e.Who].Name == "")
+        //把声明玩家为空放最前面避免空引用问题
+        var ply = TShock.Players[e.Who];
+
+        if (ply == null)
+        {
+            return;
+        }
+
+        if (!LConfig.发送进入离开  || !TShock.Players[e.Who].ConnectionAlive || TShock.Players[e.Who].Name == null || TShock.Players[e.Who].Name == "")
         {
             return;
         }
@@ -147,41 +155,56 @@ public class 跨服聊天 : TerrariaPlugin
 
     private void OnLeave(LeaveEventArgs e)
     {
-        if (TShock.ShuttingDown || !LConfig.发送进入离开 || TShock.Players[e.Who].Name == null || TShock.Players[e.Who].Name == "")
+        //把声明玩家为空放最前面避免空引用问题
+        var ply = TShock.Players[e.Who];
+
+        if (ply == null)
         {
             return;
         }
-        if (!LConfig.监听玩家断连时的离开消息 && 
-            (!TShock.Players[e.Who].ConnectionAlive == false || TShock.Players[e.Who] == null))
-        { 
+
+        if (TShock.ShuttingDown || !LConfig.发送进入离开 || TShock.Players[e.Who]?.Name == null || TShock.Players[e.Who].Name == "")
+
+        {
             return;
         }
-        string text = string.Format(LConfig.离开格式, TShock.Players[e.Who].Name);
+
+        if (!LConfig.监听玩家断连时的离开消息 && (!ply.ConnectionAlive))
+        {
+            return;
+        }
+
+        string text = string.Format(LConfig.离开格式, ply.Name);
         Color yellow = Color.Yellow;
         byte r = yellow.R;
         byte g = yellow.G;
         Message message = new Message(text, r, g, yellow.B);
+
         ThreadPool.QueueUserWorkItem(delegate
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(message.ToString());
-            string str = Convert.ToBase64String(bytes);
-            string arg = HttpUtility.UrlEncode(str);
-            string[] rest地址 = LConfig.Rest地址;
-            foreach (string text2 in rest地址)
+            if (ply != null)
             {
-                if (!(text2 == ""))
+                byte[] bytes = Encoding.UTF8.GetBytes(message.ToString());
+                string str = Convert.ToBase64String(bytes);
+                string arg = HttpUtility.UrlEncode(str);
+                string[] rest地址 = LConfig.Rest地址;
+
+                foreach (string text2 in rest地址)
                 {
-                    string requestUriString = $"http://{text2}/msc?message={arg}&token={LConfig.Token令牌}";
-                    try
+                    if (!string.IsNullOrEmpty(text2))
                     {
-                        HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUriString);
-                        using (httpWebRequest.GetResponse())
+                        string requestUriString = $"http://{text2}/msc?message={arg}&token={LConfig.Token令牌}";
+                        try
                         {
+                            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUriString);
+                            using (httpWebRequest.GetResponse())
+                            {
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        TShock.Log.ConsoleError("跨服聊天发消息错误:" + ex.ToString());
+                        catch (Exception ex)
+                        {
+                            TShock.Log.ConsoleError($"跨服聊天发消息错误: {ex.ToString()}");
+                        }
                     }
                 }
             }
