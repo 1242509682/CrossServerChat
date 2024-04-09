@@ -23,7 +23,9 @@ public class ConfigFile
 
 	public bool 发送进入离开 = true;
 
-	public bool 接收消息 = true;
+    public bool 监听玩家断连时的离开消息 = true;
+
+    public bool 接收消息 = true;
 
 	public static Action<ConfigFile> ConfigR;
 

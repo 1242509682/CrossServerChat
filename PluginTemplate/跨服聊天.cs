@@ -18,7 +18,7 @@ public class 跨服聊天 : TerrariaPlugin
 
     public override string Name => "跨服聊天";
 
-    public override Version Version => new Version(1, 0, 0, 7);
+    public override Version Version => new Version(1, 0, 0, 8);
 
     public static ConfigFile LConfig { get; set; }
 
@@ -147,8 +147,13 @@ public class 跨服聊天 : TerrariaPlugin
 
     private void OnLeave(LeaveEventArgs e)
     {
-        if (TShock.ShuttingDown || !LConfig.发送进入离开 || TShock.Players[e.Who] == null || !TShock.Players[e.Who].ConnectionAlive || TShock.Players[e.Who].Name == null || TShock.Players[e.Who].Name == "")
+        if (TShock.ShuttingDown || !LConfig.发送进入离开 || TShock.Players[e.Who].Name == null || TShock.Players[e.Who].Name == "")
         {
+            return;
+        }
+        if (!LConfig.监听玩家断连时的离开消息 && 
+            (!TShock.Players[e.Who].ConnectionAlive == false || TShock.Players[e.Who] == null))
+        { 
             return;
         }
         string text = string.Format(LConfig.离开格式, TShock.Players[e.Who].Name);
